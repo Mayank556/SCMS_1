@@ -4,8 +4,6 @@ dist/
 build/
 .DS_Store
 *.log
-.gemini/
-antigravity/
 brain/
 scratch/
 implementation_plan.md
