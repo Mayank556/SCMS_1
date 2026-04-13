@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Command Center | Unified Deployment</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <header>
+            <div class="title-group">
+                <h1>Cloud Command Center</h1>
+                <p>Unified Management for Polyglot, Salesforce, and Private Cloud Assignments</p>
+            </div>
+            <div class="global-status">
+                <span id="global-indicator" class="status-badge status-offline">System Standby</span>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Polyglot Application Control -->
+            <section class="card">
+                <h2>
+                    <span>🚀</span> Polyglot Orchestrator
+                    <span id="java-status" class="status-badge status-offline">Java Offline</span>
+                    <span id="python-status" class="status-badge status-offline">Python Offline</span>
+                </h2>
+                <div class="task-form">
+                    <input type="text" id="task-title" placeholder="Task Title (e.g., Deploy GAE)">
+                    <textarea id="task-desc" placeholder="Task Description..."></textarea>
+                    <div class="service-grid">
+                        <button onclick="createTask()">Create Task</button>
+                        <button onclick="analyzeTask()" style="background: var(--success)">Run AI Analysis</button>
+                    </div>
+                </div>
+                <div id="api-output" style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-secondary); white-space: pre-wrap;"></div>
+            </section>
+
+            <!-- Salesforce Console -->
+            <section class="card">
+                <h2><span>☁️</span> Salesforce CRM App</h2>
+                <p>Enterprise logic deployed with Apex and LWC.</p>
+                <div class="setup-preview">
+                    <p><strong>Custom Domain:</strong> [Ready to Register]</p>
+                    <p><strong>Deployment:</strong> Active (Ready for Org)</p>
+                </div>
+                <a href="task2_salesforce/setup_guide.md" class="link-button">View Setup Guide & Code &rarr;</a>
+            </section>
+
+            <!-- Private Cloud Infrastructure -->
+            <section class="card">
+                <h2><span>🛠️</span> Infrastructure Hub</h2>
+                <p>Private cloud simulation using OpenStack and ownCloud.</p>
+                <div class="service-grid">
+                    <div style="background: var(--bg-primary); padding: 0.5rem; border-radius: 0.5rem; text-align: center;">
+                        <strong>ownCloud</strong><br/>Application Layer
+                    </div>
+                    <div style="background: var(--bg-primary); padding: 0.5rem; border-radius: 0.5rem; text-align: center;">
+                        <strong>OpenStack</strong><br/>Compute Layer
+                    </div>
+                </div>
+                <a href="task3_private_cloud/infrastructure_guide.md" class="link-button">Infrastructure Instructions &rarr;</a>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const JAVA_URL = 'http://localhost:8080';
+        const PYTHON_URL = 'http://localhost:8000';
+
+        async function checkStatus() {
+            try {
+                const jResp = await fetch(JAVA_URL + '/');
+                document.getElementById('java-status').className = 'status-badge status-online';
+                document.getElementById('java-status').innerText = 'Java Online';
+                document.getElementById('global-indicator').className = 'status-badge status-online';
+                document.getElementById('global-indicator').innerText = 'System Active';
+            } catch (e) {
+                document.getElementById('java-status').className = 'status-badge status-offline';
+                document.getElementById('java-status').innerText = 'Java Offline';
+            }
+
+            try {
+                const pResp = await fetch(PYTHON_URL + '/');
+                document.getElementById('python-status').className = 'status-badge status-online';
+                document.getElementById('python-status').innerText = 'Python Online';
+            } catch (e) {
+                document.getElementById('python-status').className = 'status-badge status-offline';
+                document.getElementById('python-status').innerText = 'Python Offline';
+            }
+        }
+
+        async function createTask() {
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-desc').value;
+            const output = document.getElementById('api-output');
+
+            try {
+                const response = await fetch(JAVA_URL + '/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description })
+                });
+                const data = await response.json();
+                output.innerText = "Task Created:\n" + JSON.stringify(data, null, 2);
+            } catch (e) {
+                output.innerText = "Error: Java service unavailable.";
+            }
+        }
+
+        async function analyzeTask() {
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-desc').value;
+            const output = document.getElementById('api-output');
+
+            output.innerText = "Requesting AI Analysis from Java (via Python)...";
+
+            try {
+                const response = await fetch(JAVA_URL + '/analyze-task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description })
+                });
+                const data = await response.json();
+                output.innerText = "Analysis Result:\n" + JSON.stringify(data, null, 2);
+            } catch (e) {
+                output.innerText = "Error: Orchestration failed.";
+            }
+        }
+
+        setInterval(checkStatus, 3000);
+        checkStatus();
+    </script>
+</body>
+</html>

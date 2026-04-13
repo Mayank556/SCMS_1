@@ -1,0 +1,10 @@
+runtime: java17
+instance_class: F1
+service: java-service
+env_variables:
+  MONGODB_URI: "<set-in-app-engine-or-secret-manager>"
+  PYTHON_SERVICE_URL: "https://python-service-dot-<gcp-project-id>.uw.r.appspot.com/analyze"
+
+handlers:
+- url: /.*
+  script: this field is ignored for java17

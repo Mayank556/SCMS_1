@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Cloud Management System (SCMS)</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome for generic icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="auth-container">
+        <div class="auth-box">
+            <h1><i class="fas fa-cloud"></i> SCMS Platform</h1>
+            <p>Enterprise Cloud Infrastructure Management</p>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="tab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuth(event)">
+                <input type="text" id="username" placeholder="Username" required />
+                <input type="password" id="password" placeholder="Password" required />
+
+                <div id="register-fields" style="display: none;">
+                    <select id="role-select">
+                        <option value="user">Infrastructure Analyst</option>
+                        <option value="admin">System Administrator</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="auth-btn">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-container" style="display: none;">
+        <nav class="sidebar">
+            <div class="brand">
+                <i class="fas fa-cloud"></i> SCMS
+            </div>
+            <ul class="nav-links">
+                <li><a href="#" class="active" onclick="switchView('dashboard')"><i class="fas fa-chart-line"></i>
+                        Analytics</a></li>
+                <li id="nav-infra"><a href="#" onclick="switchView('infrastructure')"><i class="fas fa-server"></i>
+                        Cloud Manager</a></li>
+                <li><a href="#" onclick="switchView('complaints')"><i class="fas fa-ticket-alt"></i> Support Tickets</a>
+                </li>
+            </ul>
+            <div class="user-info">
+                <div id="current-user-name">User</div>
+                <div id="current-user-role" class="role-badge">Role</div>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <!-- Analytics View -->
+            <section id="view-dashboard" class="view active">
+                <header class="section-header">
+                    <h2>Cloud System Overview</h2>
+                    <span class="live-status"><span class="dot pulse"></span> Live</span>
+                </header>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <i class="fas fa-network-wired"></i>
+                        <div class="data">
+                            <h3>Polyglot App Traffic</h3>
+                            <p id="metric-traffic">32,450 req/h</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-microchip"></i>
+                        <div class="data">
+                            <h3>Compute Usage (EC2)</h3>
+                            <p id="metric-cpu">64% Avg</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fab fa-salesforce"></i>
+                        <div class="data">
+                            <h3>Salesforce Synced</h3>
+                            <p id="metric-sf">1,240 records</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <i class="fas fa-database"></i>
+                        <div class="data">
+                            <h3>Private Cloud (OpenStack)</h3>
+                            <p id="metric-storage">4.2 TB Used</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-panel">
+                    <h3>Service Health Distribution</h3>
+                    <div class="bars">
+                        <div class="bar-group">
+                            <label>Java Backend Service</label>
+                            <div class="progress-wrap">
+                                <div class="progress" style="width: 95%; background: var(--success);"></div>
+                            </div>
+                        </div>
+                        <div class="bar-group">
+                            <label>Python Analytics Data</label>
+                            <div class="progress-wrap">
+                                <div class="progress" style="width: 82%; background: var(--warning);"></div>
+                            </div>
+                        </div>
+                        <div class="bar-group">
+                            <label>OwnCloud Storage</label>
+                            <div class="progress-wrap">
+                                <div class="progress" style="width: 100%; background: var(--success);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Infrastructure Manager View -->
+            <section id="view-infrastructure" class="view" style="display: none;">
+                <header class="section-header">
+                    <h2>Infrastructure Manager</h2>
+                    <button class="primary-btn" onclick="deployNewNode()"><i class="fas fa-plus"></i> Deploy
+                        Node</button>
+                </header>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Instance Name</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>IP Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nodes-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Support Tickets (Complaints/Issues) View -->
+            <section id="view-complaints" class="view" style="display: none;">
+                <header class="section-header">
+                    <h2>System Issues & Support</h2>
+                </header>
+
+                <div class="two-col">
+                    <div class="col left" id="ticket-form-container">
+                        <div class="card form-card">
+                            <h3>Open a New Ticket</h3>
+                            <input type="text" id="ticket-title"
+                                placeholder="Issue Summary (e.g. EC2 connection failed)">
+                            <textarea id="ticket-desc" rows="4" placeholder="Detailed description..."></textarea>
+                            <button class="primary-btn fluid" onclick="submitTicket()">Submit Ticket</button>
+                        </div>
+                    </div>
+
+                    <div class="col right">
+                        <div class="card list-card" id="tickets-list">
+                            <!-- Tickets populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Ticket Detail Modal -->
+    <div id="ticket-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title">Ticket Details</h2>
+            <div class="status-badge" id="modal-status">Open</div>
+            <p id="modal-desc" class="modal-desc-text"></p>
+            <div class="modal-meta">
+                <span><i class="fas fa-user"></i> <span id="modal-author"></span></span>
+                <span><i class="far fa-clock"></i> <span id="modal-date"></span></span>
+            </div>
+
+            <div class="admin-actions" id="admin-ticket-actions" style="display:none;">
+                <button class="success-btn" onclick="updateTicketStatus('Resolved')">Mark Resolved</button>
+                <button class="warning-btn" onclick="updateTicketStatus('In Progress')">Mark In Progress</button>
+            </div>
+
+            <div class="comments-section">
+                <h3>Thread</h3>
+                <div id="modal-comments" class="comments-list"></div>
+                <div class="add-comment">
+                    <input type="text" id="new-comment" placeholder="Type a response...">
+                    <button class="primary-btn" onclick="postComment()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

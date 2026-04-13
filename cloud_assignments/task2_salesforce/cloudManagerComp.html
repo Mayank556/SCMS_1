@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Cloud Management Dashboard" icon-name="standard:service_resource">
+        <div class="slds-m-around_medium">
+            <!-- Create Task Form -->
+            <lightning-input label="Task Name" value={taskName} onchange={handleNameChange}></lightning-input>
+            <lightning-textarea label="Description" value={taskDesc} onchange={handleDescChange}></lightning-textarea>
+            <lightning-button label="Add Cloud Task" variant="brand" onclick={handleCreateTask} class="slds-m-top_small"></lightning-button>
+        </div>
+
+        <div class="slds-m-around_medium">
+            <!-- Task List -->
+            <template if:true={tasks.data}>
+                <template for:each={tasks.data} for:item="task">
+                    <p key={task.Id} class="slds-p-vertical_xx-small">
+                        <strong>{task.Name}</strong> - {task.Status__c}<br/>
+                        {task.Description__c}
+                    </p>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>
